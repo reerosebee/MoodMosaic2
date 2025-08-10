@@ -9,10 +9,11 @@ import SwiftUI
 
 struct AIChatBotView: View {
     @ObservedObject var switchManager = SwitchViewsManager.shared
-    @ObservedObject var viewModel = EmotionAnalyzer()
-    
+    @StateObject var viewModel = EmotionAnalyzer()
+    @State private var scrollViewProxy: ScrollViewProxy?
+
     var body: some View {
-        ZStack{
+        ZStack {
             Theme.background.ignoresSafeArea()
             VStack(spacing: 16) {
                 Text("MoodyKares Chatbot")
@@ -23,14 +24,23 @@ struct AIChatBotView: View {
                     .padding(.bottom, 10)
 
                 ScrollView {
-                    Text(viewModel.responseText)
-                        .padding()
-                        .frame(maxWidth: .infinity, alignment: .leading)
-                        .background(Theme.chatbot)
-                        .cornerRadius(10)
-                        .foregroundColor(.primary)
-                        .padding()
+                    ScrollViewReader { proxy in
+                        LazyVStack(alignment: .leading, spacing: 8) {
+                            ForEach(viewModel.messages) { message in
+                                ChatBubble(message: message)
+                                    .id(message.id)
+                            }
+                        }
+                        .onAppear {
+                            self.scrollViewProxy = proxy
+                            scrollToBottom()
+                        }
+                        .onChange(of: viewModel.messages.count) { _ in
+                            scrollToBottom()
+                        }
+                    }
                 }
+                .padding(.horizontal)
 
                 Spacer()
 
@@ -43,7 +53,8 @@ struct AIChatBotView: View {
                         viewModel.sendMessage()
                     }
                     .buttonStyle(BlueButton())
-                    
+                    .disabled(viewModel.isLoading || viewModel.userInput.isEmpty)
+
                     Button("Next") {
                         switchManager.setView(.startList)
                     }
@@ -51,9 +62,40 @@ struct AIChatBotView: View {
                 }
                 .padding(.bottom, 10)
             }
-            .padding()
+            .padding(.top)
         }
         .ignoresSafeArea(.keyboard, edges: .bottom)
+    }
+    
+    private func scrollToBottom() {
+        if let lastMessage = viewModel.messages.last {
+            withAnimation {
+                scrollViewProxy?.scrollTo(lastMessage.id, anchor: .bottom)
+            }
+        }
+    }
+}
+
+struct ChatBubble: View {
+    let message: Message
+
+    var body: some View {
+        HStack {
+            if message.isUser {
+                Spacer()
+            }
+
+            Text(message.content)
+                .padding(10)
+                .background(message.isUser ? Theme.accent.opacity(0.8) : Theme.chatbot) // Different background for user/bot
+                .foregroundColor(message.isUser ? .white : .primary)
+                .cornerRadius(15)
+                .shadow(radius: 1)
+            
+            if !message.isUser {
+                Spacer()
+            }
+        }
     }
 }
 

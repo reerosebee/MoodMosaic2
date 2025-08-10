@@ -2,64 +2,76 @@
 //  EmotionAnalyzer.swift
 //  MoodMosaic
 //
-//  Created by Riya  on 4/30/25.
+//  Created by Riya on 4/30/25.
 //
 
 import Foundation
+import Ollama
 
+@MainActor
 class EmotionAnalyzer: ObservableObject {
     @Published var userInput: String = ""
-    @Published var responseText: String = "Hi! My name is MoodyKares! How can I help you?"
-    @Published var conversation: [String] = []
-
+    @Published var messages: [Message] = []
+    @Published var isLoading: Bool = false
+    
+    private let client = Client.default
+    private let modelID: Model.ID = "smollm:360m"
+    
+    init() {
+        messages.append(Message(content: "Hello! How can I help you today?", isUser: false))
+    }
+    
     func sendMessage() {
-        guard let token = Bundle.main.object(forInfoDictionaryKey: "HUGGINGFACE_API_KEY") as? String else {
-            print("Hugging Face API token is missing.")
-            return
-        }
-
-        let url = URL(string: "https://api-inference.huggingface.co/models/mistralai/Mixtral-8x7B-Instruct-v0.1")!
-        var request = URLRequest(url: url)
-        request.httpMethod = "POST"
-        request.setValue("Bearer \(token)", forHTTPHeaderField: "Authorization")
-        request.setValue("application/json", forHTTPHeaderField: "Content-Type")
-
-        let userMessage = "User: \(userInput)"
-        conversation.append(userMessage)
-
+        guard !userInput.isEmpty else { return }
         
-        let prompt = (conversation + ["Bot:"]).joined(separator: "\n")
-
-        let body: [String: Any] = ["inputs": prompt]
-        request.httpBody = try? JSONSerialization.data(withJSONObject: body)
-
-        URLSession.shared.dataTask(with: request) { data, _, error in
-            guard let data = data, error == nil else {
-                DispatchQueue.main.async {
-                    self.responseText = "Oops! Something went wrong."
+        let userMessageContent = userInput
+        messages.append(Message(content: userMessageContent, isUser: true))
+        userInput = ""
+        isLoading = true
+        
+        let botMessageIndex = messages.count
+        messages.append(Message(content: "", isUser: false))
+        
+        Task {
+            do {
+                let chatHistory = messages.map { msg -> Ollama.Chat.Message in
+                    msg.isUser ? .user(msg.content) : .assistant(msg.content)
                 }
-                return
-            }
-
-            if let decoded = try? JSONDecoder().decode([HuggingFaceResponse].self, from: data),
-               let generatedText = decoded.first?.generated_text {
                 
-                let reply = generatedText.components(separatedBy: "Bot:").last?.trimmingCharacters(in: .whitespacesAndNewlines) ?? generatedText
-
-                DispatchQueue.main.async {
-                    self.conversation.append("Bot: \(reply)")
-                    self.responseText = self.conversation.joined(separator: "\n\n")
-                    self.userInput = ""
+                let stream = try await client.chatStream(
+                    model: modelID,
+                    messages: chatHistory,
+                    options: [
+                        "temperature": 0.7,
+                        "num_ctx": 400
+                    ]
+                )
+                
+                var fullResponse = ""
+                for try await chunk in stream {
+                    fullResponse += chunk.message.content
+                    DispatchQueue.main.async {
+                        self.messages[botMessageIndex].content = fullResponse
+                    }
                 }
-            } else {
+            } catch {
                 DispatchQueue.main.async {
-                    self.responseText = "Sorry, I didn’t quite get that."
+                    self.messages[botMessageIndex].content = "Error: \(error.localizedDescription)"
                 }
+                print("Error generating response: \(error)")
             }
-        }.resume()
+            
+            DispatchQueue.main.async {
+                self.isLoading = false
+            }
+        }
     }
 }
 
-struct HuggingFaceResponse: Codable {
-    let generated_text: String
+
+
+struct Message: Identifiable, Equatable {
+    let id = UUID()
+    var content: String
+    let isUser: Bool
 }

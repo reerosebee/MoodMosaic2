@@ -6,6 +6,10 @@
 	objectVersion = 77;
 	objects = {
 
+/* Begin PBXBuildFile section */
+		BF8C3CED2E359A0800E33DA0 /* Ollama in Frameworks */ = {isa = PBXBuildFile; productRef = BF8C3CEC2E359A0800E33DA0 /* Ollama */; };
+/* End PBXBuildFile section */
+
 /* Begin PBXContainerItemProxy section */
 		BF7A7D1D2CFD2444008843D0 /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
@@ -65,6 +69,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				BF8C3CED2E359A0800E33DA0 /* Ollama in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -125,6 +130,7 @@
 			);
 			name = MoodMosaic;
 			packageProductDependencies = (
+				BF8C3CEC2E359A0800E33DA0 /* Ollama */,
 			);
 			productName = MoodMosaic;
 			productReference = BF7A7D0C2CFD2442008843D0 /* MoodMosaic.app */;
@@ -208,6 +214,9 @@
 			);
 			mainGroup = BF7A7D032CFD2442008843D0;
 			minimizedProjectReferenceProxies = 1;
+			packageReferences = (
+				BF8C3CEB2E359A0800E33DA0 /* XCRemoteSwiftPackageReference "ollama-swift" */,
+			);
 			preferredProjectObjectVersion = 77;
 			productRefGroup = BF7A7D0D2CFD2442008843D0 /* Products */;
 			projectDirPath = "";
@@ -341,6 +350,7 @@
 				ONLY_ACTIVE_ARCH = YES;
 				SDKROOT = iphoneos;
 				SWIFT_ACTIVE_COMPILATION_CONDITIONS = "DEBUG $(inherited)";
+				SWIFT_OBJC_INTEROP_MODE = objcxx;
 				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
 			};
 			name = Debug;
@@ -397,6 +407,7 @@
 				MTL_FAST_MATH = YES;
 				SDKROOT = iphoneos;
 				SWIFT_COMPILATION_MODE = wholemodule;
+				SWIFT_OBJC_INTEROP_MODE = objcxx;
 				VALIDATE_PRODUCT = YES;
 			};
 			name = Release;
@@ -569,6 +580,25 @@
 			defaultConfigurationName = Release;
 		};
 /* End XCConfigurationList section */
+
+/* Begin XCRemoteSwiftPackageReference section */
+		BF8C3CEB2E359A0800E33DA0 /* XCRemoteSwiftPackageReference "ollama-swift" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/mattt/ollama-swift.git";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 1.8.0;
+			};
+		};
+/* End XCRemoteSwiftPackageReference section */
+
+/* Begin XCSwiftPackageProductDependency section */
+		BF8C3CEC2E359A0800E33DA0 /* Ollama */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = BF8C3CEB2E359A0800E33DA0 /* XCRemoteSwiftPackageReference "ollama-swift" */;
+			productName = Ollama;
+		};
+/* End XCSwiftPackageProductDependency section */
 	};
 	rootObject = BF7A7D042CFD2442008843D0 /* Project object */;
 }
