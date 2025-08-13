@@ -29,8 +29,10 @@ struct DataView: View {
                             .shadow(color: Theme.accent.opacity(0.3), radius: 2, x: 0, y: 2)
                     .padding(.top, 20)
                     .padding(.horizontal)
-                EmojiCalendarView()
-                EmotionChartView()
+                ScrollView{
+                    EmojiCalendarView()
+                    EmotionChartView()
+                }
                 Button("Back Home"){
                     switchManager.setView(.startList)
                 }

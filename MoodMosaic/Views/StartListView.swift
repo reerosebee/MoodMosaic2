@@ -40,10 +40,11 @@ struct StartListView: View {
                 }
                 .buttonStyle(BlueButton())
                 
-                Button ("Community Support") {
-                    switchManager.setView(.community)
-                }
-                .buttonStyle(BlueButton())
+                //to be implemented
+//                Button ("Community Support") {
+//                    switchManager.setView(.community)
+//                }
+//                .buttonStyle(BlueButton())
                 
                 Button ("Settings") {
                     switchManager.setView(.settings)
