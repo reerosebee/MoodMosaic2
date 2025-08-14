@@ -3,7 +3,7 @@
 //  MoodMosaic
 //
 //  Created by Riya  on 2/23/25.
-//
+//  This file shows the user's emoji data.
 
 import SwiftUI
 import Charts
