@@ -2,5 +2,7 @@ MoodMosaic is an app that uses AI to help adolescents identify, understand, and 
 
 Demo Video: https://youtu.be/faNSOJhi3ww
 
+------
 Original MoodMosaic (version submitted to Technovation Girls Challenge): https://github.com/reerosebee/MoodMosaic
+
 Note: Original MoodMosaic uses a server-based model that requires an API key. MoodMosaic2 uses an on-device model.
